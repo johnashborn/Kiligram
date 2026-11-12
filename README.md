@@ -10,6 +10,7 @@ A private photo gallery for a monthsary: taped polaroids in an ube-and-cream cov
 | `site/admin.html`, `site/admin.js` | Admin page: log in, add / edit / delete photos (images are resized to 1600px JPEG before upload) |
 | `site/story.js`, `site/story.css` | The story half of the page: envelope opening, "together for" counter, scroll-drawn timeline, reasons cards, the typed letter |
 | `site/letters.js` | "Letters to each other": a private mailbox; both of you log in once, only you two can read or write |
+| `site/nav.js` | The sticky bar at the top of the gallery: jump to Photos, Our story, Reasons, the letter, Our letters, Manage photos (admin) or Log out |
 | `site/album.js` | "All photos" view: every photo grouped by month, with heart-select to save several at once |
 | `site/download.js` | Saving photos: phones get the share sheet (straight into Photos), computers get a download or one `.zip` |
 | `site/backdrop.js` | The drifting photo wall and floating hearts behind the login screen and the admin login |

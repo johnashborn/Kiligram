@@ -107,26 +107,58 @@
 .has-session .gate-login,
 html:not(.has-session) .gate-welcome { display: none; }
 
-/* log out, top right of the gallery */
-.hero { position: relative; }
-.logout-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 2;
+/* ---------- Sticky navigation bar ---------- */
+.site-nav {
+  position: sticky;
+  top: 12px;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  margin: 24px auto 0;
+  padding: 0 12px;
+  pointer-events: none;           /* only the bar itself takes clicks */
+}
+.nav-track {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 100%;
+  padding: 5px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--paper);
+  border-radius: 999px;
+  box-shadow: var(--shadow), 0 0 0 1px var(--line);
+  pointer-events: auto;
+}
+.nav-track::-webkit-scrollbar { display: none; }
+.nav-link {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
   min-height: 40px;
   padding: 0 16px;
-  border: 1.5px solid rgba(91, 42, 134, 0.35);
+  border: 0;
   border-radius: 999px;
-  background: rgba(255, 250, 247, 0.75);
+  background: transparent;
   font: inherit;
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 600;
-  color: var(--ube);
+  color: var(--soft);
+  text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
-.logout-btn:hover { background: var(--paper); border-color: var(--ube); }
+.nav-link:hover { color: var(--ube); background: rgba(91, 42, 134, 0.07); }
+.nav-link[aria-current="true"] { background: var(--ube); color: var(--paper); }
+.nav-link[hidden] { display: none; }
+.nav-sep { flex: none; width: 1px; height: 22px; margin: 0 6px; background: var(--line); }
+.nav-admin { color: var(--ube); }
+
+/* land each part just below the sticky bar */
+#moments, .section { scroll-margin-top: 72px; }
+.section:focus, #moments:focus { outline: none; }
 
 /* opening: seal pops, flap lifts, the letter rises, then everything makes way */
 .opening .env-seal { transform: scale(1.35); opacity: 0; }

@@ -92,7 +92,6 @@
 
   <div id="page">
     <header class="hero">
-      <button class="logout-btn" type="button" id="logout">Log out</button>
       <div class="lavender" id="hero-lavender" aria-hidden="true"></div>
       <p class="hand-note">for my Langga</p>
       <h1 id="title">Our Little Memories</h1>
@@ -103,6 +102,20 @@
         <span class="together-next" id="together-next"></span>
       </p>
     </header>
+
+    <!-- Sticks to the top while scrolling: jump to any part of the page -->
+    <nav class="site-nav" id="site-nav" aria-label="Go to">
+      <div class="nav-track" id="nav-track">
+        <a class="nav-link" href="#moments">Photos</a>
+        <a class="nav-link" href="#story">Our story</a>
+        <a class="nav-link" href="#reasons">Reasons</a>
+        <a class="nav-link" href="#letter-section">Letter for you</a>
+        <a class="nav-link" href="#mailbox">Our letters</a>
+        <span class="nav-sep" aria-hidden="true"></span>
+        <a class="nav-link nav-admin" href="admin.html">Manage photos</a>
+        <button class="nav-link nav-logout" type="button" id="logout">Log out</button>
+      </div>
+    </nav>
 
     <!-- 1. Favourite moments: slideshow or all photos -->
     <section class="moments" id="moments" aria-label="Our photos">
@@ -243,5 +256,6 @@
   <script src="lavender.js"></script>
   <script src="letters.js"></script>
   <script src="gallery.js"></script>
+  <script src="nav.js"></script>
 </body>
 </html>
