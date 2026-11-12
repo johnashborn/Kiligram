@@ -4,51 +4,244 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#140b2b">
+  <meta name="theme-color" content="#F3ECF6">
   <title>Our Little Memories</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23D9668F' d='M16 28S3 20 3 11.5A6.5 6.5 0 0 1 16 8a6.5 6.5 0 0 1 13 3.5C29 20 16 28 16 28z'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fraunces:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;1,6..96,500;1,6..96,600&family=Nothing+You+Could+Do&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="story.css">
+  <script src="config.js"></script>
+  <script>
+    // Decide before first paint which first screen to show, so nothing flashes:
+    // a saved login (Supabase keeps it in localStorage) skips the email/password card,
+    // and a tab that already opened the envelope skips the gate entirely.
+    (function () {
+      var c = window.APP_CONFIG || {}, root = document.documentElement, saved = false, opened = false;
+      try {
+        var ref = (c.SUPABASE_URL || "").replace(/^https?:\/\//, "").split(".")[0];
+        saved = !!localStorage.getItem("sb-" + ref + "-auth-token");
+        opened = sessionStorage.getItem("unlocked") === "1";
+      } catch (e) {}
+      if (saved) root.classList.add("has-session");
+      if (saved && opened) root.classList.add("unlocked");
+    })();
+  </script>
 </head>
-<body>
+<body class="gallery-page">
 
-  <div id="gate" class="gate hidden">
-    <form id="gate-form" autocomplete="off">
-      <h2>Hi, Langga</h2>
-      <p id="gate-hint">Enter our secret word</p>
-      <input type="password" id="gate-input" aria-label="Passcode" autofocus>
-      <div class="err" id="gate-err" role="alert"></div>
-      <button class="btn" type="submit">Open</button>
-    </form>
+  <!-- Icons used across the page -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 32 32"><path d="M16 28S3 20 3 11.5A6.5 6.5 0 0 1 16 8a6.5 6.5 0 0 1 13 3.5C29 20 16 28 16 28z"/></symbol>
+  </svg>
+
+  <!-- Passcode screen: a sealed envelope over a wall of our photos -->
+  <div id="gate" class="gate">
+    <div class="backdrop" id="gate-backdrop" aria-hidden="true"></div>
+
+    <div class="gate-stage" id="gate-stage">
+      <div class="envelope" id="envelope" aria-hidden="true">
+        <div class="env-back"></div>
+        <div class="env-letter"><span class="hand-note">for you</span></div>
+        <div class="env-front"></div>
+        <div class="env-flap"></div>
+        <div class="env-seal"><svg viewBox="0 0 32 32"><use href="#i-heart"/></svg></div>
+      </div>
+
+      <!-- Logged out: log in -->
+      <form id="gate-form" class="gate-card gate-login">
+        <p class="hand-note">A letter is waiting for you</p>
+        <div class="field">
+          <label for="gate-email">Email</label>
+          <input type="email" id="gate-email" required autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="gate-password">Password</label>
+          <input type="password" id="gate-password" required autocomplete="current-password" aria-describedby="gate-err">
+        </div>
+        <div class="err" id="gate-err" role="alert"></div>
+        <button class="btn wide" type="submit">Log in and open</button>
+      </form>
+
+      <!-- Logged in on this device already: just open -->
+      <div class="gate-card gate-welcome">
+        <p class="hand-note" id="gate-hi">Hi, Langga</p>
+        <button class="btn" type="button" id="gate-open">Open the letter</button>
+        <button class="text-btn gate-switch" type="button" id="gate-switch">Not you? Log out</button>
+      </div>
+
+      <div class="note-card reveal-card" id="gate-letter" tabindex="-1">
+        <div class="lavender" id="gate-lavender" aria-hidden="true"></div>
+        <p class="hand-note">Hi, Langga</p>
+        <blockquote class="quote">I might not have everything but I'll give you my all</blockquote>
+        <div class="heart-rule" aria-hidden="true"></div>
+        <button class="btn" type="button" id="gate-enter">Open our memories</button>
+      </div>
+    </div>
   </div>
 
-  <header class="hero">
-    <div class="note">for my Langga</div>
-    <h1 id="title">Our Little Memories</h1>
-    <p id="subtitle"></p>
-    <div class="orn" aria-hidden="true">&#10084;</div>
-  </header>
+  <!-- The current photo, blurred into a soft glow behind the top of the page -->
+  <div class="ambient" id="ambient" aria-hidden="true">
+    <div class="amb-layer"></div>
+    <div class="amb-layer"></div>
+  </div>
 
-  <main id="gallery" class="gallery" aria-live="polite">
-    <div class="state">Loading our memories...</div>
-  </main>
+  <div id="page">
+    <header class="hero">
+      <button class="logout-btn" type="button" id="logout">Log out</button>
+      <div class="lavender" id="hero-lavender" aria-hidden="true"></div>
+      <p class="hand-note">for my Langga</p>
+      <h1 id="title">Our Little Memories</h1>
+      <p class="hero-sub" id="subtitle"></p>
+      <p class="together hidden" id="together" aria-live="off">
+        <span class="together-lead">Together for</span>
+        <span class="together-time" id="together-time"></span>
+        <span class="together-next" id="together-next"></span>
+      </p>
+    </header>
 
-  <p class="closing" id="closing"></p>
+    <!-- 1. Favourite moments: slideshow or all photos -->
+    <section class="moments" id="moments" aria-label="Our photos">
+      <div class="views hidden" id="views" role="group" aria-label="How to view the photos">
+        <button type="button" class="view-btn" data-view="slideshow" aria-pressed="true">Slideshow</button>
+        <button type="button" class="view-btn" data-view="album" aria-pressed="false">All photos</button>
+      </div>
+
+      <main id="gallery" class="gallery" aria-busy="true">
+        <section class="cf" id="cf" aria-roledescription="carousel" aria-label="Slideshow">
+          <div class="cf-stage" id="cf-stage">
+            <div class="cf-item skeleton" aria-hidden="true" style="--d:0"><div class="polaroid"><div class="frame"></div><div class="line"></div></div></div>
+          </div>
+
+          <div class="tray hidden" id="tray">
+            <div class="tray-nav">
+              <button class="round-btn" id="cf-prev" type="button" aria-label="Previous photo">&#8249;</button>
+              <div class="cf-meta">
+                <p class="cf-when" id="cf-when"></p>
+                <p class="cf-count" id="cf-count" aria-live="polite"></p>
+              </div>
+              <button class="round-btn" id="cf-next" type="button" aria-label="Next photo">&#8250;</button>
+            </div>
+            <nav class="timeline-chips" id="timeline" aria-label="Jump to a month"></nav>
+            <div class="tray-actions">
+              <button class="pill-btn" id="cf-save" type="button"><svg aria-hidden="true"><use href="#i-save"/></svg><span>Save photo</span></button>
+              <button class="pill-btn quiet" id="cf-play" type="button"><svg aria-hidden="true"><use href="#i-pause"/></svg><span>Pause</span></button>
+            </div>
+          </div>
+        </section>
+
+        <section class="album hidden" id="album" aria-labelledby="album-title">
+          <div class="album-head">
+            <h2 class="album-title" id="album-title">All our photos</h2>
+            <div class="album-tools">
+              <button class="pill-btn quiet hidden" id="sel-all" type="button">Select all</button>
+              <button class="pill-btn" id="sel-toggle" type="button">Select photos</button>
+            </div>
+          </div>
+          <p class="album-hint hidden" id="sel-hint">Tap the hearts to choose photos to save.</p>
+          <div id="album-body"></div>
+        </section>
+
+        <div class="state hidden" id="state"></div>
+      </main>
+    </section>
+
+    <!-- Everything below sits on paper, away from the glow -->
+    <div class="paper-ground">
+
+      <!-- 2. Our story, month by month -->
+      <section class="section story hidden" id="story" aria-labelledby="story-title">
+        <header class="section-head">
+          <h2 id="story-title">Our story</h2>
+          <p class="section-sub">month by month, from the very first day</p>
+        </header>
+        <div class="story-line" id="story-line">
+          <div class="story-rail" aria-hidden="true"><div class="story-fill" id="story-fill"></div></div>
+          <ol class="story-list" id="story-list"></ol>
+        </div>
+      </section>
+
+      <!-- 3. Reasons -->
+      <section class="section reasons hidden" id="reasons" aria-labelledby="reasons-title">
+        <header class="section-head">
+          <h2 id="reasons-title">Reasons I love you</h2>
+          <p class="section-sub">tap a card</p>
+        </header>
+        <ul class="reason-grid" id="reason-grid"></ul>
+      </section>
+
+      <!-- 4. A letter for her -->
+      <section class="section letter-section hidden" id="letter-section" aria-labelledby="letter-title">
+        <header class="section-head">
+          <h2 id="letter-title">A letter for you</h2>
+        </header>
+        <article class="letter-paper" id="letter-paper">
+          <div class="letter-text" id="letter-text"></div>
+          <p class="letter-sign" id="letter-sign"></p>
+        </article>
+      </section>
+
+      <!-- 5. Letters to each other (only the two of us, after logging in) -->
+      <section class="section mailbox" id="mailbox" aria-labelledby="mailbox-title">
+        <header class="section-head">
+          <h2 id="mailbox-title">Letters to each other</h2>
+          <p class="section-sub">only the two of us can read these</p>
+        </header>
+
+        <div class="mail-app hidden" id="mail-app">
+          <form class="mail-card compose" id="compose">
+            <label class="compose-label" for="compose-body" id="compose-label">Write a letter</label>
+            <textarea id="compose-body" rows="5" maxlength="5000" placeholder="Dear…"></textarea>
+            <div class="compose-row">
+              <button class="btn" type="submit" id="compose-send">Send letter</button>
+            </div>
+            <div class="msg" id="compose-msg" role="status"></div>
+          </form>
+          <ol class="mail-list" id="mail-list"></ol>
+          <p class="mail-empty hidden" id="mail-empty">No letters yet. Write the first one.</p>
+        </div>
+      </section>
+
+      <p class="closing" id="closing"></p>
+    </div>
+  </div>
+
+  <!-- Appears while choosing photos -->
+  <div class="select-bar" id="select-bar" aria-live="polite">
+    <span class="sel-count" id="sel-count">Nothing chosen yet</span>
+    <button class="btn" id="sel-save" type="button" disabled>Save photos</button>
+    <button class="text-btn hidden" id="sel-zip" type="button">Download as .zip instead</button>
+  </div>
 
   <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
-    <button class="lb-btn lb-close" id="lb-close" aria-label="Close">&times;</button>
-    <button class="lb-btn lb-prev" id="lb-prev" aria-label="Previous photo">&#8249;</button>
-    <div class="card">
-      <img id="lb-img" alt="">
-      <div class="cap" id="lb-cap"></div>
-      <div class="when" id="lb-when"></div>
+    <div class="lb-count" id="lb-count" aria-live="polite"></div>
+    <button class="round-btn lb-close" id="lb-close" aria-label="Close">&times;</button>
+    <button class="round-btn lb-prev" id="lb-prev" aria-label="Previous photo">&#8249;</button>
+    <div class="lb-body">
+      <div class="card">
+        <img id="lb-img" alt="">
+        <div class="cap" id="lb-cap"></div>
+        <div class="when" id="lb-when"></div>
+      </div>
+      <button class="pill-btn on-dark" id="lb-save" type="button"><svg aria-hidden="true"><use href="#i-save"/></svg><span>Save photo</span></button>
     </div>
-    <button class="lb-btn lb-next" id="lb-next" aria-label="Next photo">&#8250;</button>
+    <button class="round-btn lb-next" id="lb-next" aria-label="Next photo">&#8250;</button>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="shared.js"></script>
+  <script src="backdrop.js"></script>
+  <script src="download.js"></script>
+  <script src="album.js"></script>
+  <script src="story.js"></script>
+  <script src="lavender.js"></script>
+  <script src="letters.js"></script>
   <script src="gallery.js"></script>
 </body>
 </html>

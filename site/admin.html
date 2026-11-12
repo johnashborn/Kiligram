@@ -4,27 +4,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#F3ECF6">
   <title>Admin - Our Little Memories</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23D9668F' d='M16 28S3 20 3 11.5A6.5 6.5 0 0 1 16 8a6.5 6.5 0 0 1 13 3.5C29 20 16 28 16 28z'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fraunces:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;1,6..96,500;1,6..96,600&family=Nothing+You+Could+Do&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="admin-wrap">
+<body class="admin">
 
-    <div class="admin-top">
-      <div>
-        <h1>Admin</h1>
-        <div class="admin-sub">Add, edit and remove photos. <a href="index.html">View the gallery</a></div>
-      </div>
-      <button class="btn ghost small hidden" id="logout">Log out</button>
-    </div>
-
-    <!-- Login -->
-    <section class="panel" id="login-panel" style="max-width:420px">
-      <h2>Log in</h2>
-      <form id="login-form">
+  <!-- Login: photo wall behind a love note -->
+  <div class="login-screen" id="login-panel">
+    <div class="backdrop" id="login-backdrop" aria-hidden="true"></div>
+    <div class="note-card">
+      <blockquote class="quote">I might not have everything but I'll give you my all</blockquote>
+      <div class="heart-rule" aria-hidden="true"></div>
+      <h1 class="login-title">Admin login</h1>
+      <form id="login-form" class="login-form">
         <div class="field">
           <label for="email">Email</label>
           <input type="email" id="email" required autocomplete="username">
@@ -33,71 +30,85 @@
           <label for="password">Password</label>
           <input type="password" id="password" required autocomplete="current-password">
         </div>
-        <button class="btn" type="submit">Log in</button>
-        <div class="msg" id="login-msg"></div>
+        <button class="btn wide" type="submit">Log in</button>
+        <div class="msg" id="login-msg" role="status"></div>
+      </form>    </div>
+  </div>
+
+  <!-- App -->
+  <div id="app" class="admin-wrap hidden">
+
+    <div class="admin-top">
+      <div>
+        <h1>Admin</h1>
+        <div class="admin-sub">Add, edit and remove photos. <a href="index.html">View the gallery</a></div>
+      </div>
+      <button class="btn ghost small" id="logout">Log out</button>
+    </div>
+
+    <section class="panel" id="form-panel">
+      <h2 id="form-title">Add a photo</h2>
+      <form id="photo-form" class="form-grid">
+        <div>
+          <div class="field">
+            <span class="label" id="file-label">Photo</span>
+            <label class="drop" id="drop" for="file">
+              <input type="file" id="file" accept="image/*" class="sr-only" aria-labelledby="file-label file-hint">
+              <span class="drop-main" id="file-name">Choose a photo</span>
+              <span class="drop-hint" id="file-hint">or drop one here. JPG, PNG or WebP.</span>
+            </label>
+          </div>
+          <div class="field">
+            <label for="caption">Caption</label>
+            <textarea id="caption" rows="2" maxlength="140" placeholder="our first date at the cafe"></textarea>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="month">Month label</label>
+              <input type="text" id="month" maxlength="40" placeholder="Month 1" list="month-options">
+              <datalist id="month-options"></datalist>
+            </div>
+            <div class="field">
+              <label for="taken">Date</label>
+              <input type="date" id="taken">
+            </div>
+          </div>
+          <div class="field">
+            <label for="tilt">Tilt: <span id="tilt-val">0</span>&deg;</label>
+            <div class="row tilt-row">
+              <input type="range" id="tilt" min="-4" max="4" step="0.5" value="0">
+              <button type="button" class="btn ghost small" id="shuffle">Shuffle</button>
+            </div>
+          </div>
+          <div class="actions-row">
+            <button class="btn" type="submit" id="save">Add photo</button>
+            <button class="btn ghost hidden" type="button" id="cancel-edit">Cancel edit</button>
+          </div>
+          <div class="msg" id="form-msg" role="status"></div>
+        </div>
+
+        <div>
+          <div class="preview-box" aria-label="Preview of how it will look">
+            <figure class="polaroid seen" id="preview" style="--tilt:0deg">
+              <div class="frame"><img id="prev-img" alt=""></div>
+              <figcaption><span id="prev-cap">Your caption here</span><span class="when" id="prev-when"></span></figcaption>
+            </figure>
+          </div>
+        </div>
       </form>
     </section>
 
-    <!-- App -->
-    <div id="app" class="hidden">
-
-      <section class="panel">
-        <h2 id="form-title">Add a photo</h2>
-        <form id="photo-form" class="form-grid">
-          <div>
-            <div class="field">
-              <label for="file">Photo <span id="file-note"></span></label>
-              <input type="file" id="file" accept="image/*">
-            </div>
-            <div class="field">
-              <label for="caption">Caption</label>
-              <textarea id="caption" rows="2" maxlength="140" placeholder="our first date at the cafe"></textarea>
-            </div>
-            <div class="row">
-              <div class="field">
-                <label for="month">Month label</label>
-                <input type="text" id="month" maxlength="40" placeholder="Month 1">
-              </div>
-              <div class="field">
-                <label for="taken">Date</label>
-                <input type="date" id="taken">
-              </div>
-            </div>
-            <div class="field">
-              <label for="tilt">Tilt: <span id="tilt-val">0</span>&deg;</label>
-              <div class="row">
-                <input type="range" id="tilt" min="-4" max="4" step="0.5" value="0" style="flex:3">
-                <button type="button" class="btn ghost small" id="shuffle" style="flex:1">Shuffle</button>
-              </div>
-            </div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap">
-              <button class="btn" type="submit" id="save">Add photo</button>
-              <button class="btn ghost hidden" type="button" id="cancel-edit">Cancel edit</button>
-            </div>
-            <div class="msg" id="form-msg"></div>
-          </div>
-
-          <div>
-            <div class="preview-box">
-              <figure class="polaroid" id="preview" style="--tilt:0deg">
-                <div class="frame"><img id="prev-img" alt="Preview" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Crect width='10' height='10' fill='%23eee'/%3E%3C/svg%3E"></div>
-                <figcaption><span id="prev-cap">Your caption here</span><span class="when" id="prev-when"></span></figcaption>
-              </figure>
-            </div>
-          </div>
-        </form>
-      </section>
-
-      <section class="panel">
-        <h2>Your photos (<span id="count">0</span>)</h2>
-        <div class="items" id="items"></div>
-        <div class="msg" id="list-msg"></div>
-      </section>
-    </div>
+    <section class="panel">
+      <h2>Your photos (<span id="count">0</span>)</h2>
+      <div class="items" id="items"></div>
+      <div class="msg" id="list-msg" role="status"></div>
+    </section>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="config.js"></script>
+  <script src="shared.js"></script>
+  <script src="backdrop.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>
