@@ -1,4 +1,4 @@
-# Our Little Memories
+# Kiligram
 
 A private photo gallery for a monthsary: taped polaroids in an ube-and-cream coverflow carousel with a month timeline, behind a login screen (a sealed envelope) over a drifting wall of our photos and a love note. Photos are managed from an admin page and stored in Supabase. The site is plain HTML/CSS/JS with no build step, deployed to GitHub Pages.
 

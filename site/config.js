@@ -13,7 +13,7 @@ window.APP_CONFIG = {
   START_DATE: "2026-02-14",
 
   // Text shown on the gallery page. {months} becomes how many months you've been together.
-  TITLE: "Our Little Memories",
+  TITLE: "Kiligram",
   SUBTITLE: "Month {months} with you",
   CLOSING_MESSAGE: "Happy monthsary, langga. Here's to many more months, and a lot more photos.",
 

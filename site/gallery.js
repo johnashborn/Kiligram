@@ -10,7 +10,7 @@
   var AUTOPLAY_MS = 5000;
 
   // ---------- Static text from config ----------
-  $("title").textContent = cfg.TITLE || "Our Little Memories";
+  $("title").textContent = cfg.TITLE || "Kiligram";
   $("subtitle").textContent = M.fill(cfg.SUBTITLE);
   $("closing").textContent = M.fill(cfg.CLOSING_MESSAGE);
   document.title = cfg.TITLE || document.title;

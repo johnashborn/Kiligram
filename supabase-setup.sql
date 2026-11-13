@@ -1,5 +1,5 @@
 -- ------------------------------------------------------------------
--- Our Little Memories: database + storage setup for Supabase.
+-- Kiligram: database + storage setup for Supabase.
 -- Paste into Supabase > SQL Editor and run. Safe to run more than once
 -- (it also replaces the older, looser rules from earlier versions).
 --
